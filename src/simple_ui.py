@@ -1,9 +1,11 @@
 import numpy as np
 import PySimpleGUI as sg
 from loguru import logger
+import os
+import sys
+import audio, llm
 
-from src import audio, llm
-from src.constants import APPLICATION_WIDTH, OFF_IMAGE, ON_IMAGE
+from constants import APPLICATION_WIDTH, OFF_IMAGE, ON_IMAGE
 
 
 def get_text_area(text: str, size: tuple) -> sg.Text:
@@ -61,7 +63,7 @@ WINDOW = sg.Window("Keyboard Test", layout, return_keyboard_events=True, use_def
 def background_recording_loop() -> None:
     audio_data = None
     while record_status_button.metadata.state:
-        audio_sample = audio.record_batch()
+        audio_sample = audio.record_batch_alt()
         if audio_data is None:
             audio_data = audio_sample
         else:
@@ -85,7 +87,7 @@ while True:
     elif event in ("a", "A"):  # send audio to OpenAI Whisper model
         logger.debug("Analyzing audio...")
         analyzed_text_label.update("Start analyzing...")
-        WINDOW.perform_long_operation(llm.transcribe_audio, "-WHISPER COMPLETED-")
+        WINDOW.perform_long_operation(llm.transcribe_deepgram, "-WHISPER COMPLETED-")
 
     elif event == "-WHISPER COMPLETED-":
         audio_transcript = values["-WHISPER COMPLETED-"]
